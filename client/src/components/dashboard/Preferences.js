@@ -194,6 +194,14 @@ class Preferences extends React.Component {
           user.career.working = 'no';
         }
         break;
+      case 'hasBeenEmployed':
+        if (id === 'Yes') {
+          user.career.hasBeenEmployed = true
+        }
+        if (id === 'No') {
+          user.career.hasBeenEmployed = false
+        }
+        break;
       default:
         user.career.jobSearch = id.replace(/_/g, ' ');
         break;
