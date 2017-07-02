@@ -225,10 +225,10 @@ class Preferences extends React.Component {
         break;
       case 'hasBeenEmployed':
         if (id === 'Yes') {
-          user.career.hasBeenEmployed = true
+          user.career.hasBeenEmployed = 'yes'
         }
         if (id === 'No') {
-          user.career.hasBeenEmployed = false
+          user.career.hasBeenEmployed = 'no'
         }
         break;
       default:

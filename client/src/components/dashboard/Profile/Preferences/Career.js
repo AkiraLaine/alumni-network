@@ -114,14 +114,14 @@ class Career extends React.Component {
                   label='Yes'
                   name="hasBeenEmployed"
                   onChange={handleRadioChange}
-                  checked={hasBeenEmployed} />
+                  checked={hasBeenEmployed === 'yes'} />
                 <RadioButton
                   name="hasBeenEmployed"
                   label="No"
                   onChange={handleRadioChange}
-                  checked={!hasBeenEmployed} />
+                  checked={hasBeenEmployed === 'no'} />
               </div>
-              {hasBeenEmployed &&
+              {hasBeenEmployed === 'yes' &&
                 <FormField
                   name="company"
                   errors={errors}
