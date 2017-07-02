@@ -327,7 +327,7 @@ class Preferences extends React.Component {
           errors.bio = ERROR.BIO;
         break;
       case 'company':
-        if (!validate.__25Chars(str))
+        if (!validate.checkCompanyLength(str))
           errors.company = ERROR.COMPANY;
         break;
       case 'location':

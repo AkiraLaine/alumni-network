@@ -104,7 +104,7 @@ class Career extends React.Component {
                 inputOptions="small"
                 placeholder="Facebook, Google"
                 onChange={handleInputChange}
-                label="Enter companies seperated by a comma" />
+                label="Enter companies seperated by a comma (max: 3)" />
               <ClearButton onClick={clearForm} />
             </TransitionContainer>
             <TransitionContainer isExpanded={working === 'no'}>
@@ -129,7 +129,7 @@ class Career extends React.Component {
                   inputOptions="small"
                   placeholder="Facebook, Google"
                   onChange={handleInputChange}
-                  label="Enter companies seperated by a comma" />
+                  label="Enter companies seperated by a comma (max: 3)" />
               }
               <div className={`${isMobile ? 'grouped' : 'inline'} fields`}>
                 <label>Are you currently looking for full-time employment as a software developer?</label>

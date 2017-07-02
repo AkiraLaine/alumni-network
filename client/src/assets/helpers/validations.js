@@ -1,6 +1,9 @@
 import Validator from 'validator';
 
 export default {
+  checkCompanyLength: (str) => {
+    return str.split(',').length <= 3
+  },
   __25Chars: (str) => {
     return Validator.isLength(str, { min: 0, max: 25 });
   },
