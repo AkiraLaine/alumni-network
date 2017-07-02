@@ -14,7 +14,7 @@ const CareerRow = ({ career }) => {
         <TableRow
           header="I have been coding for:"
           content={career.tenure} />
-        {career.hasBeenEmployed &&
+        {career.hasBeenEmployed === 'yes' &&
           <TableRow
             header='I have previously worked for:'
             content={career.company} />
