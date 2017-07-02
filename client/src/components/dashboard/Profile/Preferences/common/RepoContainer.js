@@ -1,13 +1,12 @@
 import React from 'react';
-import { isEmpty } from 'lodash';
-import { indexOf } from 'lodash';
-import Validator from 'validator';
+import { isEmpty, indexOf } from 'lodash';
 import propTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Input } from 'semantic-ui-react';
 import { connectScreenSize } from 'react-screen-size';
 import repoHosts from '../../../../../assets/dropdowns/repoHosts';
 import { mapScreenSizeToProps } from '../../../Community/UserCard';
+import RepoListItem from './RepoListItem';
+import RepoInput from './RepoInput';
 
 import {
   validateGithubRepo,
@@ -18,7 +17,6 @@ import {
 /*
 TODO:
   1) Refactor addItem() code
-  2) Create RegExp's to replace long if statements in addItem()
 */
 
 export const Container = styled.div`
@@ -29,38 +27,14 @@ const List = styled.div`
   margin: 8px 0 0 0 !important;
 `;
 
-const StyledItem = styled.div`
-  color: black !important;
-  font-weight: bold !important;
-  .icon {
-    color: black !important;
-  }
-  cursor: pointer;
-  &:hover {Styled
-    background: #E0E0E0 !important;
-    .icon {
-      color: #FF4025 !important;
-      transition: color 200ms ease-in-out !important;
-    }
-  }
-`;
-
-const ErrorLabel = ({ isMobile, error }) => (
-  <div
-    style={{ marginTop: 10 }}
-    className={`ui ${!isMobile ? 'left pointing' : ''} red basic label`}>
-    {error}
-  </div>
-);
-
-class RepoList extends React.Component {
+class RepoContainer extends React.Component {
   state = {
     item: '',
     error: {},
     icon: 'github',
     items_list: [],
     isLoading: false,
-    label: 'https://github.com/',
+    label: 'https://github.com/'
   }
 
   componentWillMount() {
@@ -76,6 +50,10 @@ class RepoList extends React.Component {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyPress);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    console.log(nextProps)
   }
 
   handleKeyPress = (e) => {
@@ -119,7 +97,7 @@ class RepoList extends React.Component {
     .catch(err => {
       this.setState({
         error: {
-          header: `Our bad, it seems like we really messed this one up! Try again never. Just kidding, give us a few.`,
+          header: `Our bad, it seems like we really messed this one up! Try again soon.`,
           repo: '',
           namespace: ''
         },
@@ -171,26 +149,20 @@ class RepoList extends React.Component {
 
     // GITLAB VALIDATIONS:
     if (label === 'https://gitlab.com/') {
-      // CHALLENGE!!! anyone up for the challenge of writing a regex that covers all of this?
-      // I was unable to, would def clean this up. -Pete
 
       if (
-      // GitLab naming conventions:
-      repo.slice(-4) === '.git' ||
-      repo.slice(-5) === '.atom' ||
-      repo.slice(-1) === '.' ||
-      repo.slice(0, 1) === '-' ||
-      namespace.slice(-4) === '.git' ||
-      namespace.slice(-5) === '.atom' ||
-      namespace.slice(0, 1) === '-' ||
-      namespace.slice(-1) === '.' ||
-      !Validator.matches(item, /[\d\w-.]+\/[\d\w-.]+\/?/)
+        // GitLab naming conventions:
+        /(^-)|(\.((git)|(atom))?$)/.test(repo) ||
+        /(^-)|(\.((git)|(atom))?$)/.test(namespace) ||
+        !/[\d\w-.]+\/[\d\w-.]+\/?/.test(item)
       ) {
         this.setState({
           error: {
-            header: 'Please enter a valid GitLab repository path: namespace/repo',
-            repo: "Namespace: This value can only contain letters, digits, '_', '-' and '.'. Cannot start with '-' or end in '.', '.git' or '.atom'",
-            namespace: "Repo: This value can only contain letters, digits, '_', '-' and '.'. Cannot start with '-' or end in '.', '.git' or '.atom'"
+            header:    'Please enter a valid GitLab repository path: namespace/repo',
+            repo:      `Namespace: This value can only contain letters, digits, '_', '-'
+                        and '.'. Cannot start with '-' or end in '.', '.git' or '.atom'`,
+            namespace: `Repo: This value can only contain letters, digits, '_', '-'
+                        and '.'. Cannot start with '-' or end in '.', '.git' or '.atom'`
           },
           item: '',
           isLoading: false
@@ -202,16 +174,15 @@ class RepoList extends React.Component {
 
     // BITBUCKET VALIDATIONS:
     if (label === 'https://bitbucket.org/') {
-      if (
-        // BitBucket naming conventions:
-        (repo.length === 1 && repo.slice(0, 1) === '.') ||
-        !Validator.matches(item, /[\d\w-]+\/[\d\w-.]+\/?/)
-      ) {
+      // BitBucket naming conventions:
+      if ((repo.length === 1 && /^\./.test(repo)) || !/[\d\w-]+\/[\d\w-.]+\/?/.test(item)) {
         this.setState({
           error: {
-            header: 'Please enter a valid BitBucket repository path: namespace/repo',
-            repo: 'Repo: This value must contain only ASCII letters, numbers, dashes, underscores and periods.',
-            namespace: 'Namespace: This value must contain only ASCII letters, numbers, dashes and underscores.'
+            header:    'Please enter a valid BitBucket repository path: namespace/repo',
+            repo:      `Repo: This value must contain only ASCII letters, numbers,
+                        dashes, underscores and periods.`,
+            namespace: `Namespace: This value must contain only ASCII letters,
+                        numbers, dashes and underscores.`
           },
           item: '',
           isLoading: false
@@ -225,17 +196,18 @@ class RepoList extends React.Component {
     if (label === 'https://github.com/') {
       if (
         // GitHub naming conventions:
-        repo.slice(0, 1) === '.' ||
-        namespace.slice(0, 1) === '-' ||
-        namespace.slice(-1) === '-' ||
-        namespace.search(/--/) > -1 ||
-        !Validator.matches(item, /[\d\w-.]+\/[\d\w-]+\/?/)
+        /^\./.test(repo) === '.' ||
+        /^-|--|-$/.test(namespace) ||
+        !/[\d\w-.]+\/[\d\w-]+\/?/.test(item)
       ) {
         this.setState({
           error: {
-            header: 'Please enter a valid GitHub repository path: namespace/repo',
-            repo: 'Repo: This value may only contain alphanumeric characters, periods, and hyphens, and cannot begin with a period.',
-            namespace: 'Namespace: This value may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.'
+            header:    'Please enter a valid GitHub repository path: namespace/repo',
+            repo:      `Repo: This value may only contain alphanumeric characters,
+                        periods, and hyphens, and cannot begin with a period.`,
+            namespace: `Namespace: This value may only contain alphanumeric
+                        characters or single hyphens, and cannot begin or
+                        end with a hyphen.`
           },
           item: '',
           isLoading: false
@@ -331,57 +303,52 @@ class RepoList extends React.Component {
     const { item, isLoading, icon, error } = this.state;
     const listItems = this.state.items_list.map((el, index) => {
       return (
-        <StyledItem key={index} className="item">
-          <div className="right floated content">
-            <a><i onClick={this.removeItem.bind(this, el)} className="remove icon"/></a>
-            <a><i onClick={this.editItem.bind(this, el)} className="edit icon"/></a>
-          </div>
-          <a href={`${el.label}${el.item}`} target="_blank" className="content">{`${el.label}${el.item}`}</a>
-        </StyledItem>
+        <RepoListItem key={index}
+                    el={el}
+                    index={index}
+                    removeItem={this.removeItem.bind(this, el)}
+                    editItem={this.editItem.bind(this, el)}
+                />
       );
     });
     return (
       <Container>
-        <Input
-          icon={icon}
-          value={item}
-          loading={isLoading}
-          labelPosition="left"
-          onChange={this.handleChange}
-          placeholder="Namespace / Repo"
-          fluid={isMobile ? true : false}
-          label={<Dropdown
-            options={repoHosts}
-            className="basic green"
-            defaultValue="https://github.com/"
-            onChange={this.handleLabelChange} />} />
-      { !isEmpty(error) && !error.repo && !error.namespace &&
-        <ErrorLabel isMobile={isMobile} error={error.header} /> }
+        <RepoInput item={item}
+                  isLoading={isLoading}
+                  handleChange={this.handleChange}
+                  isMobile={isMobile}
+                  repoHosts={repoHosts}
+                  handleDropdownChange={this.handleLabelChange}
+                  addItem={this.addItem}
+                  icon={icon}
+                  error={error} />
         <List className="ui middle aligned divided selection list">
           {listItems}
         </List>
-      { !isEmpty(error) && error.repo && error.namespace &&
-        <div className="ui error message">
-          <div className="header">{error.header}</div>
-          <ul className="list">
-            <li>{error.namespace}</li>
-            <li>{error.repo}</li>
-          </ul>
-        </div> }
+        {
+          !isEmpty(error) && error.repo && error.namespace &&
+          <div className="ui error message">
+            <div className="header">{error.header}</div>
+            <ul className="list">
+              <li>{error.namespace}</li>
+              <li>{error.repo}</li>
+            </ul>
+          </div>
+        }
       </Container>
     );
   }
 }
 
-RepoList.propTypes = {
+RepoContainer.propTypes = {
   prePopulateList: propTypes.array,
   username: propTypes.string.isRequired,
   saveChanges: propTypes.func.isRequired,
   saveListToParent: propTypes.func.isRequired,
 }
 
-RepoList.defaultProps = {
+RepoContainer.defaultProps = {
   prePopulateList: []
 }
 
-export default connectScreenSize(mapScreenSizeToProps)(RepoList);
+export default connectScreenSize(mapScreenSizeToProps)(RepoContainer);

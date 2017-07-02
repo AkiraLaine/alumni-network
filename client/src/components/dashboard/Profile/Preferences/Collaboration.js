@@ -1,7 +1,7 @@
 import React from 'react';
 import { isEqual } from 'lodash';
 import { isEmpty } from 'lodash';
-import RepoList from './common/RepoList';
+import RepoContainer from './common/RepoContainer';
 import Ribbon from './common/RibbonHeader';
 import MessageBox from '../../common/MessageBox';
 import { TransitionContainer } from '../../../../styles/style-utils';
@@ -15,20 +15,15 @@ export default class Collaboration extends React.Component {
       toggle,
       projects,
       username,
-      showPopUp,
       saveChanges,
-      saveSection,
       saveProjectsList,
-      showCollaboration,
+      showCollaboration
     } = this.props;
     return (
       <div>
         <Ribbon
-          id="projectsPopUp"
           content="Collaboration"
-          showPopUp={showPopUp}
-          saveSection={saveSection}
-          showSave={showCollaboration}
+          showSave={false}
           onClick={() => toggle('showCollaboration')} />
         <TransitionContainer isExpanded={showCollaboration}>
           <MessageBox
@@ -36,7 +31,7 @@ export default class Collaboration extends React.Component {
             dismissable={true}
             hide={!isEmpty(projects) ? true : false}
             message="Share links to repos for projects that you could use some help with!" />
-          <RepoList
+          <RepoContainer
             username={username}
             prePopulateList={projects}
             saveChanges={saveChanges}
